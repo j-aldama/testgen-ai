@@ -1,0 +1,72 @@
+<div class="fade-in space-y-6">
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ summary.total }}</div>
+      <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-1" data-i18n="total_tc">Total Test Cases</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ summary.requirements_count }}</div>
+      <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-1" data-i18n="requirements">Requirements</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ summary.by_priority.get('High', 0) }}</div>
+      <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-1" data-i18n="high_priority">High Priority</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ summary.by_technique | length }}</div>
+      <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-1" data-i18n="techniques_used">Techniques Used</div>
+    </div>
+  </div>
+
+  <!-- Download Buttons -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200" data-i18n="export_title">Export Test Cases</h3>
+      <div class="flex space-x-3">
+        <a href="/download/{{ session_id }}/md"
+           class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Markdown
+        </a>
+        <a href="/download/{{ session_id }}/pdf"
+           class="inline-flex items-center px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-sm font-medium transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          PDF
+        </a>
+        <a href="/download/{{ session_id }}/xlsx"
+           class="inline-flex items-center px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md hover:bg-green-100 dark:hover:bg-green-900/50 text-sm font-medium transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Excel
+        </a>
+        <a href="/download/{{ session_id }}/json"
+           class="inline-flex items-center px-4 py-2 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-md hover:bg-yellow-100 dark:hover:bg-yellow-900/50 text-sm font-medium transition-colors">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          JSON
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Cases Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200" data-i18n="generated_tc">Generated Test Cases</h3>
+    </div>
+    <div id="test-cases-table">
+      {% include "partials/test_cases_table.html" %}
+    </div>
+  </div>
+</div>
+<script>
+  if (typeof applyLang === 'function') applyLang();
+  if (typeof applyTheme === 'function') applyTheme();
+</script>

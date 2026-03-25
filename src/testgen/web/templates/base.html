@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TestGen{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <style>
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-flex; }
+    .htmx-request.htmx-indicator { display: inline-flex; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: spin 1s linear infinite; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Loading button state */
+    .htmx-request #generate-btn { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+    .htmx-request .btn-default-state { display: none; }
+    .htmx-request .btn-loading-state { display: inline-flex !important; }
+
+    /* Tooltips */
+    .tooltip { position: relative; }
+    .tooltip .tooltip-text {
+      visibility: hidden; opacity: 0;
+      position: absolute; z-index: 50;
+      bottom: 125%; left: 50%; transform: translateX(-50%);
+      padding: 6px 10px; border-radius: 6px;
+      font-size: 12px; white-space: nowrap;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip .tooltip-text.light-tip { background: #1f2937; color: #fff; }
+    .dark .tooltip .tooltip-text.light-tip { background: #e5e7eb; color: #111827; }
+  </style>
+  <script>
+    // i18n translations
+    const i18n = {
+      en: {
+        title: "Generate Test Cases",
+        subtitle: "Paste your requirements, user stories, or specifications below. TestGen will generate structured test cases using ISTQB techniques.",
+        requirements_label: "Requirements / User Stories",
+        options_title: "Generation Options",
+        techniques_label: "ISTQB Techniques",
+        priorities_label: "Priority Filter",
+        types_label: "Test Types",
+        step_format_label: "Step Format",
+        generate_btn: "Generate Test Cases",
+        generating_btn: "Generating...",
+        new_gen: "New Generation",
+        tip_techniques: "Select which ISTQB test design techniques to apply",
+        tip_priorities: "Filter generated test cases by priority level",
+        tip_types: "Filter by specific test case types",
+        tip_step_format: "Choose the format for test steps output",
+        tip_requirements: "Enter requirements in any format: numbered list, bullets, user stories, or Gherkin",
+        count_label: "Cases per Req.",
+        tip_count: "Number of test cases to generate per requirement (3-15)",
+        // Results
+        total_tc: "Total Test Cases",
+        requirements: "Requirements",
+        high_priority: "High Priority",
+        techniques_used: "Techniques Used",
+        export_title: "Export Test Cases",
+        generated_tc: "Generated Test Cases",
+        // Table headers
+        th_title: "Title",
+        th_priority: "Priority",
+        th_type: "Type",
+        th_technique: "Technique",
+        th_steps: "Steps",
+        th_expected: "Expected Result",
+        th_trace: "Trace",
+        step_label: "Step:",
+        expected_label: "Expected:",
+      },
+      es: {
+        title: "Generar Casos de Prueba",
+        subtitle: "Pega tus requerimientos, historias de usuario o especificaciones. TestGen generara casos de prueba estructurados usando tecnicas ISTQB.",
+        requirements_label: "Requerimientos / Historias de Usuario",
+        options_title: "Opciones de Generacion",
+        techniques_label: "Tecnicas ISTQB",
+        priorities_label: "Filtro de Prioridad",
+        types_label: "Tipos de Test",
+        step_format_label: "Formato de Pasos",
+        generate_btn: "Generar Casos de Prueba",
+        generating_btn: "Generando...",
+        new_gen: "Nueva Generacion",
+        tip_techniques: "Selecciona que tecnicas de diseno de pruebas ISTQB aplicar",
+        tip_priorities: "Filtra los casos de prueba generados por nivel de prioridad",
+        tip_types: "Filtra por tipos especificos de caso de prueba",
+        tip_step_format: "Elige el formato de salida para los pasos del test",
+        tip_requirements: "Ingresa requerimientos en cualquier formato: lista numerada, bullets, user stories o Gherkin",
+        count_label: "Casos por Req.",
+        tip_count: "Cantidad de casos de prueba a generar por requerimiento (3-15)",
+        // Results
+        total_tc: "Total Casos de Prueba",
+        requirements: "Requerimientos",
+        high_priority: "Prioridad Alta",
+        techniques_used: "Tecnicas Usadas",
+        export_title: "Exportar Casos de Prueba",
+        generated_tc: "Casos de Prueba Generados",
+        // Table headers
+        th_title: "Titulo",
+        th_priority: "Prioridad",
+        th_type: "Tipo",
+        th_technique: "Tecnica",
+        th_steps: "Pasos",
+        th_expected: "Resultado Esperado",
+        th_trace: "Traza",
+        step_label: "Paso:",
+        expected_label: "Esperado:",
+      }
+    };
+
+    function getLang() {
+      return localStorage.getItem('tg-lang') || 'en';
+    }
+    function setLang(lang) {
+      localStorage.setItem('tg-lang', lang);
+      applyLang();
+    }
+    function applyLang() {
+      const lang = getLang();
+      const t = i18n[lang] || i18n.en;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+      });
+      document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+        const key = el.getAttribute('data-i18n-tip');
+        if (t[key]) el.querySelector('.tooltip-text').textContent = t[key];
+      });
+      // Update active state on lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('ring-2', btn.dataset.lang === lang);
+        btn.classList.toggle('ring-blue-500', btn.dataset.lang === lang);
+      });
+    }
+
+    // Dark mode
+    function getTheme() {
+      return localStorage.getItem('tg-theme') || 'light';
+    }
+    function toggleTheme() {
+      const next = getTheme() === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('tg-theme', next);
+      applyTheme();
+    }
+    function applyTheme() {
+      const theme = getTheme();
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+    }
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', () => { applyTheme(); applyLang(); });
+  </script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 transition-colors">
+  <!-- Navigation -->
+  <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a href="/" class="flex items-center space-x-2">
+            <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            <span class="text-xl font-bold text-gray-900 dark:text-white">TestGen</span>
+          </a>
+          <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">AI-Powered Test Case Generator</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium" data-i18n="new_gen">New Generation</a>
+          <!-- Language toggle -->
+          <button onclick="setLang('en')" data-lang="en" class="lang-btn text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">EN</button>
+          <button onclick="setLang('es')" data-lang="es" class="lang-btn text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">ES</button>
+          <!-- Theme toggle -->
+          <button onclick="toggleTheme()" class="text-lg px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" title="Toggle dark/light mode">
+            <span id="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      TestGen v1.0.0 &mdash; ISTQB-aligned test case generation powered by AI
+    </div>
+  </footer>
+</body>
+</html>

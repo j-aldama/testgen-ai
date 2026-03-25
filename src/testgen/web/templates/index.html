@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}TestGen - Generate Test Cases{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <!-- Hero -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2" data-i18n="title">Generate Test Cases</h1>
+    <p class="text-gray-600 dark:text-gray-400" data-i18n="subtitle">Paste your requirements, user stories, or specifications below. TestGen will generate structured test cases using ISTQB techniques.</p>
+  </div>
+
+  <!-- Form -->
+  <form
+    id="generate-form"
+    hx-post="/generate"
+    hx-target="#results-container"
+    hx-swap="innerHTML"
+    hx-indicator="#generate-form"
+    class="space-y-6"
+  >
+    <!-- Requirements Input -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div class="tooltip inline-block mb-2" data-i18n-tip="tip_requirements">
+        <label for="requirements_text" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 cursor-help">
+          <span data-i18n="requirements_label">Requirements / User Stories</span>
+          <svg class="w-4 h-4 inline ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+        </label>
+        <span class="tooltip-text light-tip">Enter requirements in any format: numbered list, bullets, user stories, or Gherkin</span>
+      </div>
+      <textarea
+        id="requirements_text"
+        name="requirements_text"
+        rows="10"
+        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-3 border"
+        placeholder="Example:
+1. The user must be able to register with email and password.
+2. The password must have a minimum of 8 characters and a maximum of 128 characters.
+3. The email must be unique in the system.
+
+Or Gherkin:
+Scenario: User registration with valid data
+  Given the user is on the registration page
+  When they enter a valid email and password
+  Then the account is created successfully"
+        required
+      ></textarea>
+    </div>
+
+    <!-- Options -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4" data-i18n="options_title">Generation Options</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <!-- Techniques -->
+        <div>
+          <div class="tooltip inline-block mb-2" data-i18n-tip="tip_techniques">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide cursor-help">
+              <span data-i18n="techniques_label">ISTQB Techniques</span>
+              <svg class="w-3.5 h-3.5 inline ml-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+            </label>
+            <span class="tooltip-text light-tip">Select which ISTQB test design techniques to apply</span>
+          </div>
+          <div class="space-y-2">
+            {% for key, label in techniques %}
+            <label class="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+              <input type="checkbox" name="techniques" value="{{ key }}" class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500" checked>
+              <span>{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Priorities -->
+        <div>
+          <div class="tooltip inline-block mb-2" data-i18n-tip="tip_priorities">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide cursor-help">
+              <span data-i18n="priorities_label">Priority Filter</span>
+              <svg class="w-3.5 h-3.5 inline ml-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+            </label>
+            <span class="tooltip-text light-tip">Filter generated test cases by priority level</span>
+          </div>
+          <div class="space-y-2">
+            {% for p in priorities %}
+            <label class="flex items-center space-x-2 text-sm">
+              <input type="checkbox" name="priorities" value="{{ p }}" class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+              <span class="{% if p == 'High' %}text-red-600 dark:text-red-400{% elif p == 'Medium' %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %}">{{ p }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Types -->
+        <div>
+          <div class="tooltip inline-block mb-2" data-i18n-tip="tip_types">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide cursor-help">
+              <span data-i18n="types_label">Test Types</span>
+              <svg class="w-3.5 h-3.5 inline ml-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+            </label>
+            <span class="tooltip-text light-tip">Filter by specific test case types</span>
+          </div>
+          <div class="space-y-2">
+            {% for t in types %}
+            <label class="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+              <input type="checkbox" name="types" value="{{ t }}" class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+              <span>{{ t }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Step Format -->
+        <div>
+          <div class="tooltip inline-block mb-2" data-i18n-tip="tip_step_format">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide cursor-help">
+              <span data-i18n="step_format_label">Step Format</span>
+              <svg class="w-3.5 h-3.5 inline ml-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+            </label>
+            <span class="tooltip-text light-tip">Choose the format for test steps output</span>
+          </div>
+          <div class="space-y-2">
+            {% for key, label in step_formats %}
+            <label class="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+              <input type="radio" name="step_format" value="{{ key }}"
+                     class="border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                     {% if key == 'gwt' %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Test Cases per Requirement -->
+        <div>
+          <div class="tooltip inline-block mb-2" data-i18n-tip="tip_count">
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide cursor-help">
+              <span data-i18n="count_label">Cases per Req.</span>
+              <svg class="w-3.5 h-3.5 inline ml-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+            </label>
+            <span class="tooltip-text light-tip">Number of test cases to generate per requirement (3-15)</span>
+          </div>
+          <input type="number" name="tc_per_req" value="5" min="3" max="15"
+                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border">
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex items-center justify-between">
+      <button
+        id="generate-btn"
+        type="submit"
+        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors"
+      >
+        <span class="btn-default-state inline-flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span data-i18n="generate_btn">Generate Test Cases</span>
+        </span>
+        <span class="btn-loading-state hidden items-center">
+          <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span data-i18n="generating_btn">Generating...</span>
+        </span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Results Container -->
+  <div id="results-container" class="mt-8 fade-in"></div>
+</div>
+{% endblock %}
