@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=70.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "testgen"
+version = "1.0.0"
+description = "AI-powered test case generator using ISTQB techniques"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "Juan Ignacio Aldama"},
+]
+keywords = ["testing", "qa", "sdet", "istqb", "test-cases", "ai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "anthropic==0.49.0",
+    "openai==1.61.0",
+    "typer==0.15.1",
+    "rich==13.9.4",
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "jinja2==3.1.5",
+    "markdown==3.7",
+    "xhtml2pdf==0.2.17",
+    "openpyxl==3.1.5",
+    "python-multipart==0.0.20",
+    "pymupdf==1.25.3",
+    "pydantic==2.10.5",
+    "pydantic-settings==2.7.1",
+    "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "pytest-asyncio==0.25.0",
+    "ruff==0.8.6",
+    "mypy==1.14.1",
+]
+
+[project.scripts]
+testgen = "testgen.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
