@@ -1,0 +1,6 @@
+1. The user must be able to register with email and password.
+2. The password must have a minimum of 8 characters and a maximum of 128 characters.
+3. The email must be unique in the system.
+4. After successful registration, the user receives a confirmation email within 5 minutes.
+5. The system must lock the account after 5 consecutive failed login attempts.
+6. Locked accounts can only be unlocked by an administrator.
