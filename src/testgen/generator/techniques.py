@@ -495,9 +495,10 @@ def _extract_conditions(text: str) -> list[str]:
     """Extract testable conditions from requirement text."""
     conditions: list[str] = []
 
-    # Look for "must/should/shall" clauses
+    # Look for "must/should/shall" clauses — stop before next "and must/should/shall"
     must_clauses = re.findall(
-        r"(?:must|should|shall|debe|tiene que)\s+(?:have|be|contain|include|tener|ser|contener)\s+(.+?)(?:[,.]|$)",
+        r"(?:must|should|shall|debe|tiene que)\s+(?:have|be|contain|include|accept|tener|ser|contener)"
+        r"\s+(.+?)(?=\s+(?:and|y)\s+(?:must|should|shall|debe|tiene que)|[,.]|$)",
         text,
         re.IGNORECASE,
     )

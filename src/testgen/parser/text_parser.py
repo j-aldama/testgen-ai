@@ -21,8 +21,8 @@ _REQUIREMENT_PATTERNS = [
 _SENTENCE_SPLITTER = re.compile(r"(?<=[.!])\s+(?=[A-Z])")
 
 _GHERKIN_PATTERN = re.compile(
-    r"(?:Feature|Scenario|Given|When|Then|And|But)\s*[:\s]",
-    re.IGNORECASE,
+    r"^\s*(?:Feature|Scenario|Given|When|Then|And|But)\s*[:\s]",
+    re.IGNORECASE | re.MULTILINE,
 )
 
 
