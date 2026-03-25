@@ -160,8 +160,13 @@
       if (icon) icon.textContent = theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
     }
 
-    // Init on load
-    document.addEventListener('DOMContentLoaded', () => { applyTheme(); applyLang(); });
+    // Init on load — support ?theme=dark&lang=es query params for screenshots
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('theme')) { localStorage.setItem('tg-theme', params.get('theme')); }
+      if (params.get('lang')) { localStorage.setItem('tg-lang', params.get('lang')); }
+      applyTheme(); applyLang();
+    });
   </script>
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-900 transition-colors">

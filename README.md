@@ -2,6 +2,15 @@
 
 AI-powered test case generator that transforms requirements into structured, ISTQB-aligned test cases.
 
+<p align="center">
+  <img src="docs/dark-mode.png" alt="TestGen Dark Mode" width="80%">
+</p>
+
+<p align="center">
+  <img src="docs/light-mode.png" alt="TestGen Light Mode" width="45%">
+  <img src="docs/dark-spanish.png" alt="TestGen Spanish" width="45%">
+</p>
+
 ## Features
 
 - **Multi-provider AI**: Supports Claude (Anthropic) and OpenAI-compatible models (GPT, Ollama, LM Studio, etc.)
